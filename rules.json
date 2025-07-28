@@ -1,0 +1,51 @@
+[
+  {
+    "if": [
+      ["Breeze", ["x", "y"]],
+      ["Adjacent", ["x", "y", "a", "b"]]
+    ],
+    "then": ["PossiblePit", ["a", "b"]]
+  },
+  {
+    "if": [
+      ["Stench", ["x", "y"]],
+      ["Adjacent", ["x", "y", "a", "b"]]
+    ],
+    "then": ["PossibleWumpus", ["a", "b"]]
+  },
+  {
+    "if": [
+      ["NotBreeze", ["x", "y"]],
+      ["Adjacent", ["x", "y", "a", "b"]]
+    ],
+    "then": ["NoPit", ["a", "b"]]
+  },
+  {
+    "if": [
+      ["NotStench", ["x", "y"]],
+      ["Adjacent", ["x", "y", "a", "b"]]
+    ],
+    "then": ["NoWumpus", ["a", "b"]]
+  },
+  {
+    "if": [
+      ["NoPit", ["x", "y"]],
+      ["NoWumpus", ["x", "y"]]
+    ],
+    "then": ["Safe", ["x", "y"]]
+  },
+  {
+    "if": [
+      ["PossiblePit", ["x", "y"]],
+      ["NoPit", ["x", "y"]]
+    ],
+    "then": ["Remove", ["PossiblePit", "x", "y"]]
+  },
+  {
+    "if": [
+      ["PossibleWumpus", ["x", "y"]],
+      ["NoWumpus", ["x", "y"]]
+    ],
+    "then": ["Remove", ["PossibleWumpus", "x", "y"]]
+  }
+]
