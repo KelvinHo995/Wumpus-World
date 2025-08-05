@@ -1,7 +1,68 @@
 from random import randint
 from typing import Tuple
+import os
+import platform
+import time
 
 DIRECTIONS = ['N', 'E', 'S', 'W']  # clockwise
+
+def clear_console():
+    if platform.system() == 'Windows':
+        os.system('cls')
+    else:
+        os.system('clear')
+
+def display_step(agent, world):
+    clear_console()
+
+    # === Hiển thị bản đồ
+    pos = agent.get_position()
+    print("=== WUMPUS WORLD ===")
+    for y in reversed(range(world.N)):
+        row = ""
+        for x in range(world.N):
+            if (x, y) == pos:
+                row += " A  "
+            else:
+                row += " .  "
+        print(row)
+
+    # === Thông tin Agent hiện tại
+    print("\n=== AGENT STATE ===")
+    print(f"Position      : {pos}")
+    print(f"Facing        : {agent.get_facing()}")
+
+    if agent.step_log:
+        last_step = agent.step_log[-1]
+        action_taken = last_step[1]
+        result = last_step[2]
+        short_result = result.split(" | ")[0]  # Ẩn Percepts để bảng gọn hơn
+        score = last_step[3]
+
+        print(f"Action Taken  : {action_taken}")
+        print(f"Result        : {short_result}")
+        print(f"Current Score : {score}")
+
+        # Hiển thị Percepts tách riêng
+        if "Percepts:" in result:
+            percept_part = result.split("Percepts:")[1].strip(" []")
+            print("\nPercepts:")
+            for item in percept_part.split(", "):
+                if ":" in item:
+                    k, v = item.split(":")
+                    print(f" - {k.capitalize()}: {v}")
+
+    # === Bảng Action Log cập nhật
+    print("\n=== ACTION LOG ===")
+    print("{:<5} | {:<12} | {:<45} | Score".format("Step", "Action", "Result"))
+    print("-" * 80)
+    for step, action, result, score in agent.step_log:
+        short_result1 = result.split(" | ")[0]  # Ẩn Percepts để bảng gọn hơn
+
+        print(f"{step:<5} | {action:<12} | {short_result1:<45} | {score}")
+
+    #time.sleep(delay)  # thêm delay nhỏ để hiệu ứng rõ
+    input("\nPress Enter to continue...")
 
 # ======= Mô tả ô bản đồ =======
 class Cell:
@@ -17,7 +78,19 @@ class WumpusWorld:
         self.K = K
         self.p = p
         self.grid = [[Cell() for _ in range(N)] for _ in range(N)]
-        self.place_elements()
+        self.set_fixed_map()
+        #self.place_elements()
+
+    def set_fixed_map(self):
+        # Không đặt pit/gold để dễ test
+        # Đặt 1 Wumpus cố định tại (3,0) – hàng ngang với Agent
+        self.grid[0][3].has_wumpus = True
+
+        # (Tùy chọn) Đặt thêm Wumpus để test giới hạn bắn
+        self.grid[3][3].has_wumpus = True  # nằm khác hướng → không bị bắn
+
+        # (Tùy chọn) Đặt Gold để test hành vi khác
+        # self.grid[0][2].has_gold = True
 
     def place_elements(self):
         # Wumpus
@@ -104,13 +177,22 @@ class WumpusWorld:
         print(f"[INFO] Facing direction: {agent.get_facing()}")
 
         # Current percepts
-        percepts = self.get_percepts(*pos)
-        print("[INFO] Current percepts:")
-        for k, v in percepts.items():
-            print(f" - {k.capitalize()}: {v}")
+        # percepts = self.get_percepts(*pos)
+        # print("[INFO] Current percepts:")
+        # for k, v in percepts.items():
+        #     print(f" - {k.capitalize()}: {v}")
 
-        # Score
-        print(f"[INFO] Current score: {agent.score}")
+        # # Score
+        # print(f"[INFO] Current score: {agent.score}")
+        last_step = agent.step_log[-1] if agent.step_log else None
+        if last_step:
+            action_taken = last_step[1]
+            result_text = last_step[2]
+            current_score = last_step[3]
+
+            print(f"[INFO] Action: {action_taken}")
+            print(f"[INFO] Result: {result_text}")
+            print(f"[INFO] Current score: {current_score}")
 
 
 # ======= Agent đơn giản (chỉ di chuyển thử) =======
@@ -150,6 +232,8 @@ class Agent:
     
     def action(self, act: str, world: WumpusWorld, step_no: int):
         result = ""
+        bump = False
+        scream = False
         if not self.is_alive:
             result = "Agent is dead. Minus 1000 points!"
             self.step_log.append((step_no, act, result, self.score))
@@ -191,6 +275,7 @@ class Agent:
                 else:
                     result = f"Moved to ({self.x}, {self.y})"
             else:
+                bump = True
                 result = "BUMP! Hit wall. No movement."
 
         elif act == "grab":
@@ -207,8 +292,30 @@ class Agent:
             if not self.remain_arrow:
                 result = "No arrow left to shoot!"
             else:
+                self.remain_arrow = False
                 self.score -= 10
                 result = "Shot arrow!"
+                dx, dy = 0, 0
+
+                if self.get_facing() == 'N': dy = 1
+                elif self.get_facing() == 'S': dy = -1
+                elif self.get_facing() == 'E': dx = 1
+                elif self.get_facing() == 'W': dx = -1
+
+                arrow_x, arrow_y = self.x, self.y
+                while True:
+                    arrow_x += dx
+                    arrow_y += dy
+                    if not (0 <= arrow_x < world.N and 0 <= arrow_y < world.N):
+                        break
+
+                    cell = world.grid[arrow_y][arrow_x]
+                    if cell.has_wumpus:
+                        cell.has_wumpus = False
+                        scream = True
+                        result += f" Scream! Killed Wumpus at ({arrow_x}, {arrow_y})"
+                        break
+
         elif act == "climb out":
             if self.x == 0 and self.y == 0:
                 if self.has_gold:
@@ -221,6 +328,8 @@ class Agent:
                 result = "Can only climb out at (0,0)"
 
         percepts = world.get_percepts(self.x, self.y)
+        percepts["bump"] = bump
+        percepts["scream"] = scream
         percept_str = ", ".join(f"{k}:{v}" for k, v in percepts.items())
         self.step_log.append((step_no, act.upper(), result + f" | Percepts: [{percept_str}]", self.score))
 
@@ -284,22 +393,31 @@ def main():
     world.print_true_map()
 
     print("\n[2] Start Simulation:")
+    # actions = [
+    #     "move forward", "turn left", "move forward",
+    #     "grab", "turn right", "move forward",
+    #     "move forward", "turn left", "move forward",
+    #     "climb out"
+    # ]
     actions = [
-        "move forward", "turn left", "move forward",
-        "grab", "turn right", "move forward",
-        "move forward", "turn left", "move forward",
-        "climb out"
+        "shoot",      # Bắn mũi tên từ (0,0) → hy vọng trúng (3,0)
+        "move forward",
+        "move forward",
+        "move forward",
+        "turn right",
+        "move forward"
     ]
 
     for i, act in enumerate(actions):
         print(f"\n>> STEP {i+1}: {act.upper()}")
         agent.action(act, world, i+1)
-        world.print_agent_map(agent)
+        # world.print_agent_map(agent)
+        display_step(agent, world)
         if not agent.is_alive:
             break
 
-    print("\n[3] Final Log:")
-    agent.print_log()
+    # print("\n[3] Final Log:")
+    # agent.print_log()
 
 if __name__ == "__main__":
     main()
