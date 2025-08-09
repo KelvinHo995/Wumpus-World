@@ -1,0 +1,99 @@
+[
+  {
+    "if": [
+      ["PossiblePit", ["x", "y"]],
+      ["NoPit", ["x", "y"]]
+    ],
+    "remove": ["PossiblePit", ["x", "y"]]
+  },
+  {
+    "if": [
+      ["PossibleWumpus", ["x", "y"]],
+      ["NoWumpus", ["x", "y"]]
+    ],
+    "remove": ["PossibleWumpus", ["x", "y"]]
+  },
+  {
+    "if": [
+      ["Breeze", ["x", "y"]],
+      ["Adjacent", ["x", "y", "a", "b"]]
+    ],
+    "then": ["PossiblePit", ["a", "b"]]
+  },
+  {
+    "if": [
+      ["Stench", ["x", "y"]],
+      ["Adjacent", ["x", "y", "a", "b"]]
+    ],
+    "then": ["PossibleWumpus", ["a", "b"]]
+  },
+  {
+    "if": [
+      ["NotBreeze", ["x", "y"]],
+      ["Adjacent", ["x", "y", "a", "b"]]
+    ],
+    "then": ["NoPit", ["a", "b"]]
+  },
+  {
+    "if": [
+      ["NotStench", ["x", "y"]],
+      ["Adjacent", ["x", "y", "a", "b"]]
+    ],
+    "then": ["NoWumpus", ["a", "b"]]
+  },
+  {
+    "if": [
+      ["NoPit", ["x", "y"]],
+      ["NoWumpus", ["x", "y"]]
+    ],
+    "then": ["Safe", ["x", "y"]]
+  },
+  {
+    "if": [
+      ["Wall", ["x", "y"]],
+      ["Wall", ["x", "z"]],
+      ["Adjacent", ["x", "y", "x", "z"]]
+    ],
+    "then": ["WallRow", ["x"]]
+  },
+  {
+    "if": [
+      ["Wall", ["x", "y"]],
+      ["Wall", ["z", "y"]],
+      ["Adjacent", ["x", "y", "z", "y"]]
+    ],
+    "then": ["WallColumn", ["y"]]
+  },
+  {
+    "if": [
+      ["Breeze", ["x", "y"]],
+      ["NotBreeze", ["a1", "b1"]],
+      ["NotBreeze", ["a2", "b2"]],
+      ["NotBreeze", ["a3", "b3"]],
+      ["PossiblePit", ["a4", "b4"]],
+      ["Adjacent", ["x", "y", "a1", "b1"]],
+      ["Adjacent", ["x", "y", "a2", "b2"]],
+      ["Adjacent", ["x", "y", "a3", "b3"]],
+      ["Adjacent", ["x", "y", "a4", "b4"]]
+    ],
+    "then": ["Pit", ["a4", "b4"]]
+  },
+  {
+    "if": [
+      ["Stench", ["x", "y"]],
+      ["NotStench", ["a1", "b1"]],
+      ["NotStench", ["a2", "b2"]],
+      ["NotStench", ["a3", "b3"]],
+      ["PossibleWumpus", ["a4", "b4"]],
+      ["Adjacent", ["x", "y", "a1", "b1"]],
+      ["Adjacent", ["x", "y", "a2", "b2"]],
+      ["Adjacent", ["x", "y", "a3", "b3"]],
+      ["Adjacent", ["x", "y", "a4", "b4"]]
+    ],
+    "then": ["Wumpus", ["a4", "b4"]]
+  }
+]
+
+
+
+
