@@ -114,6 +114,18 @@ class InferenceEngine:
 
         return inferred
 
+    def get_safe_tiles(self, inferred):
+        return set(tuple(map(int, fact[1])) for fact in inferred if fact[0] == "Safe")
+
+    def get_visited_tiles(self, inferred):
+        return set(tuple(map(int, fact[1])) for fact in inferred if fact[0] == "Visited")
+
+    def get_unsafe_tiles(self, inferred, visited_tiles=None):
+        if visited_tiles is None:
+            visited_tiles = self.get_visited_tiles(inferred)
+            
+
+
 if __name__ == "__main__":
     facts = [
         ("PossiblePit", ("1", "1")),
