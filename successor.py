@@ -21,14 +21,11 @@ def generate_successors(state, world):
     dx, dy = direction_to_delta(state.direction)
     new_pos = (state.pos[0] + dx, state.pos[1] + dy)
     if world.in_bounds(new_pos):
-        is_alive = not (world.is_pit(new_pos) or world.is_wumpus(new_pos))
         new_state = State(
             pos=new_pos,
             direction=state.direction,
             has_gold=state.has_gold,
             has_arrow=state.has_arrow,
-            is_alive=is_alive,
-            visited=state.visited | {new_pos},
             cost=state.cost + 1
         )
         successors.append(("FORWARD", new_state))
@@ -38,8 +35,6 @@ def generate_successors(state, world):
         direction=rotate_left(state.direction),
         has_gold=state.has_gold,
         has_arrow=state.has_arrow,
-        is_alive=state.is_alive,
-        visited=state.visited,
         cost=state.cost + 1
     )))
 
@@ -48,8 +43,6 @@ def generate_successors(state, world):
         direction=rotate_right(state.direction),
         has_gold=state.has_gold,
         has_arrow=state.has_arrow,
-        is_alive=state.is_alive,
-        visited=state.visited,
         cost=state.cost + 1
     )))
 
@@ -59,8 +52,6 @@ def generate_successors(state, world):
             direction=state.direction,
             has_gold=True,
             has_arrow=state.has_arrow,
-            is_alive=state.is_alive,
-            visited=state.visited,
             cost=state.cost
         )))
 
