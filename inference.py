@@ -1,8 +1,32 @@
 from collections import defaultdict
+import json
 
 class InferenceEngine:
     def __init__(self):
         pass
+    
+    def parse_rules(self, path):
+        with open(path) as f:
+            raw = json.load(f)
+        
+        parsed_rules = []
+
+        for rule in raw:
+            parsed_if = [(pred[0], tuple(pred[1])) for pred in rule["if"]]
+            if "then" in rule:
+                parsed_then = (rule["then"][0], tuple(rule["then"][1]))
+                parsed_rules.append({
+                    "if": parsed_if,
+                    "then": parsed_then
+                })
+            else:
+                parsed_remove = (rule["remove"][0], tuple(rule["remove"][1]))
+                parsed_rules.append({
+                    "if": parsed_if,
+                    "remove": parsed_remove
+                })
+
+        return parsed_rules
 
     def unify(self, expression, fact, substitution={}):
         if expression[0] != fact[0]:
@@ -56,41 +80,46 @@ class InferenceEngine:
 
         while True:
             new_facts = set()
+            to_remove = set()
+            changed = False
 
             for rule in rules:
                 premise = rule["if"]
-                consequence = rule["then"]
+                if "then" in rule:
+                    consequence = rule["then"]
+                else:
+                    consequence = rule["remove"]
 
                 matches = self.match(premise, inferred)
 
                 for substitution in matches:
-                    new_fact = self.substitute(consequence, substitution)
+                    new_literal = self.substitute(consequence, substitution)
         
-                    if new_fact not in inferred and new_fact not in new_facts:
-                        new_facts.add(new_fact)
+                    if "remove" in rule:
+                        if new_literal in inferred:
+                            to_remove.add(new_literal)
+                            changed = True
+                        elif new_literal in new_facts:
+                            new_facts.discard(new_literal)
+                            changed = True
+                    elif new_literal not in inferred and new_literal not in new_facts:
+                        new_facts.add(new_literal)
+                        changed = True
 
-            if not new_facts:
+            if not changed:
                 break
 
-            inferred.update(new_facts)
+            inferred -= to_remove
+            inferred |= new_facts
 
         return inferred
 
 if __name__ == "__main__":
-    rules = [
-        {
-            "if": [
-                ("Breeze", ("x", "y")),
-                ("Adjacent", ("x", "y", "a", "b"))
-            ],
-            "then": ("PossiblyPit", ("a", "b"))
-        }
-    ]
     facts = [
-        ("Breeze", ("1", "2")),
-        ("Adjacent", ("1", "2", "1", "3")),
-        ("Adjacent", ("1", "2", "1", "1"))
+        ("PossiblePit", ("1", "1")),
+        ("NoPit", ("1", "1"))
     ]
 
     engine = InferenceEngine()
+    rules = engine.parse_rules("rules.json")
     print(engine.forward_chaining(rules, facts))
