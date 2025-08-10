@@ -167,3 +167,5 @@ class Agent:
         for step, action, percepts in self.history:
             percept_str = ", ".join([f"{k}:{v}" for k, v in percepts.items()])
             print(f"{step:<5} | {action:<10} | {percept_str}")
+
+    

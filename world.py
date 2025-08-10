@@ -20,9 +20,9 @@ class WumpusWorld:
     def set_fixed_map(self):
         # Không đặt pit/gold để dễ test
         # Đặt 1 Wumpus cố định tại (3,0) – hàng ngang với Agent
-        self.grid[0][3].has_wumpus = True
-
-        self.grid[3][3].has_wumpus = True  # nằm khác hướng → không bị bắn
+        self.grid[0][1].has_wumpus = True
+        self.grid[1][0].has_pit = True
+        #self.grid[3][3].has_wumpus = True  # nằm khác hướng → không bị bắn
 
         # (Tùy chọn) Đặt Gold để test hành vi khác
         # self.grid[0][2].has_gold = True
@@ -117,3 +117,34 @@ class WumpusWorld:
             print(f"[INFO] Action: {action_taken}")
             print(f"[INFO] Result: {result_text}")
             print(f"[INFO] Current score: {current_score}")
+
+    def generate_initial_KB(self, agent):
+        kb = []
+
+        x, y = agent.get_position()
+        kb.append(("Visited", (x, y)))
+        kb.append(("Safe", (x, y)))
+
+        # percepts tại (0,0)
+        percepts = self.get_percepts(x, y)
+        for key in ["breeze", "stench", "glitter"]:
+            if percepts[key]:
+                kb.append((key.capitalize(), (x, y)))
+
+        N = self.N
+
+        #NEW: Generate adjacency facts (include adjacency cells and walls)
+        for y in range(N):
+            for x in range(N):
+                for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                    nx, ny = x + dx, y + dy
+                    if 0 <= nx < N and 0 <= ny < N:
+                        kb.append(((x, y), (nx, ny)))
+                    else:
+                        # Dù đây đã có trong wall, vẫn thêm lại để rõ ràng cho inference
+                        wall_pos = (nx, ny)
+                        kb.append(("Wall", wall_pos))
+                        # kb.append(("NoPit", wall_pos))
+                        # kb.append(("NoWumpus", wall_pos))
+
+        return kb
