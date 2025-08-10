@@ -4,6 +4,8 @@ import os
 import platform
 import time
 
+from percepts import Percept
+
 DIRECTIONS = ['N', 'E', 'S', 'W']  # clockwise
 
 def clear_console():
@@ -34,34 +36,49 @@ def display_step(agent, world):
 
     if agent.step_log:
         last_step = agent.step_log[-1]
-        action_taken = last_step[1]
-        result = last_step[2]
-        short_result = result.split(" | ")[0]  # Ẩn Percepts để bảng gọn hơn
-        score = last_step[3]
+        #action_taken = last_step[1]
+        action_taken = last_step["action"]
+        #result = last_step[2]
+        result = last_step["result"]
+        #short_result = result.split(" | ")[0]  #Ẩn Percepts để bảng gọn hơn
+        #score = last_step[3]
+        score = last_step["score"]
+        percepts = last_step["percepts"]
 
         print(f"Action Taken  : {action_taken}")
-        print(f"Result        : {short_result}")
+        #print(f"Result        : {short_result}")
+        print(f"Result        : {result}")
         print(f"Current Score : {score}")
 
-        # Hiển thị Percepts tách riêng
-        if "Percepts:" in result:
-            percept_part = result.split("Percepts:")[1].strip(" []")
-            print("\nPercepts:")
-            for item in percept_part.split(", "):
-                if ":" in item:
-                    k, v = item.split(":")
-                    print(f" - {k.capitalize()}: {v}")
+        # # Hiển thị Percepts tách riêng
+        # if "Percepts:" in result:
+        #     percept_part = result.split("Percepts:")[1].strip(" []")
+        #     print("\nPercepts:")
+        #     for item in percept_part.split(", "):
+        #         if ":" in item:
+        #             k, v = item.split(":")
+        #             print(f" - {k.capitalize()}: {v}")
+
+        print("\nPercepts:")
+        for k, v in percepts.items():
+            print(f" - {k.capitalize()}: {v}")
 
     # === Bảng Action Log cập nhật
     print("\n=== ACTION LOG ===")
     print("{:<5} | {:<12} | {:<45} | Score".format("Step", "Action", "Result"))
     print("-" * 80)
-    for step, action, result, score in agent.step_log:
-        short_result1 = result.split(" | ")[0]  # Ẩn Percepts để bảng gọn hơn
+    #for step, action, result, score in agent.step_log:
+    #    short_result1 = result.split(" | ")[0]  # Ẩn Percepts để bảng gọn hơn
 
-        print(f"{step:<5} | {action:<12} | {short_result1:<45} | {score}")
+    for entry in agent.step_log:
+        step = entry["step"]
+        action = entry["action"]
+        result = entry["result"]
+        score = entry["score"]
 
-    #time.sleep(delay)  # thêm delay nhỏ để hiệu ứng rõ
+        #print(f"{step:<5} | {action:<12} | {short_result1:<45} | {score}")
+        print(f"{step:<5} | {action:<12} | {result:<45} | {score}")
+
     input("\nPress Enter to continue...")
 
 # ======= Mô tả ô bản đồ =======
@@ -78,7 +95,7 @@ class WumpusWorld:
         self.K = K
         self.p = p
         self.grid = [[Cell() for _ in range(N)] for _ in range(N)]
-        self.set_fixed_map()
+        self.set_fixed_map() # Có thể dùng dòng này hoặc dòng dưới...
         #self.place_elements()
 
     def set_fixed_map(self):
@@ -86,7 +103,6 @@ class WumpusWorld:
         # Đặt 1 Wumpus cố định tại (3,0) – hàng ngang với Agent
         self.grid[0][3].has_wumpus = True
 
-        # (Tùy chọn) Đặt thêm Wumpus để test giới hạn bắn
         self.grid[3][3].has_wumpus = True  # nằm khác hướng → không bị bắn
 
         # (Tùy chọn) Đặt Gold để test hành vi khác
@@ -149,17 +165,6 @@ class WumpusWorld:
                 row += f"{content}"
             print(row)
 
-    # def print_agent_map(self, agent_pos: Tuple[int, int]):
-    #     print("\n=== AGENT VIEW (Only Position) ===")
-    #     for y in reversed(range(self.N)):
-    #         row = ""
-    #         for x in range(self.N):
-    #             if (x, y) == agent_pos:
-    #                 row += " A  "
-    #             else:
-    #                 row += " .  "
-    #         print(row)
-
     def print_agent_map(self, agent):
         pos = agent.get_position()
         print("\n=== AGENT VIEW ===")
@@ -195,7 +200,7 @@ class WumpusWorld:
             print(f"[INFO] Current score: {current_score}")
 
 
-# ======= Agent đơn giản (chỉ di chuyển thử) =======
+# ======= Agent =======
 class Agent:
     def __init__(self):
         self.x = 0
@@ -206,23 +211,6 @@ class Agent:
         self.remain_arrow = True
         self.score = 0
         self.step_log = []
-       # self.history = []  # Lưu (step_no, action, percepts)
-
-    # def move(self, direction: str, world: WumpusWorld, step_no: int):
-    #     if direction == "up" and self.y + 1 < world.N:
-    #         self.y += 1
-    #     elif direction == "down" and self.y - 1 >= 0:
-    #         self.y -= 1
-    #     elif direction == "right" and self.x + 1 < world.N:
-    #         self.x += 1
-    #     elif direction == "left" and self.x - 1 >= 0:
-    #         self.x -= 1
-    #     else:
-    #         print("Bump! Hit wall.")
-
-    #     pos = self.get_position()
-    #     percepts = world.get_percepts(*pos)
-    #     self.history.append((step_no, direction.upper(), percepts))
 
     def get_position(self):
         return (self.x, self.y)
@@ -234,10 +222,19 @@ class Agent:
         result = ""
         bump = False
         scream = False
+
         if not self.is_alive:
-            result = "Agent is dead. Minus 1000 points!"
-            self.step_log.append((step_no, act, result, self.score))
-            return
+            result = "Agent is dead. Minus 1000 points! No action possible!"
+            percept = Percept(False, False, False, False, False)
+            #self.step_log.append((step_no, act, result, self.score))
+            self.step_log.append({
+            "step": step_no,
+            "action": act.upper(),
+            "result": result,
+            "percepts": percept.to_dict(),
+            "score": self.score
+            })
+            return percept
         
         act = act.lower()
 
@@ -327,11 +324,30 @@ class Agent:
             else:
                 result = "Can only climb out at (0,0)"
 
-        percepts = world.get_percepts(self.x, self.y)
-        percepts["bump"] = bump
-        percepts["scream"] = scream
-        percept_str = ", ".join(f"{k}:{v}" for k, v in percepts.items())
-        self.step_log.append((step_no, act.upper(), result + f" | Percepts: [{percept_str}]", self.score))
+        #Modified with commit3
+        percepts_raw = world.get_percepts(self.x, self.y)
+        percept = Percept(
+            stench=percepts_raw["stench"],
+            breeze=percepts_raw["breeze"],
+            glitter=percepts_raw["glitter"],
+            bump=bump,
+            scream=scream
+        )
+        # percepts["bump"] = bump
+        # percepts["scream"] = scream
+        # percept_str = ", ".join(f"{k}:{v}" for k, v in percepts.items())
+        # self.step_log.append((step_no, act.upper(), result + f" | Percepts: [{percept_str}]", self.score))
+
+         # Lưu lại vào log
+        self.step_log.append({
+            "step": step_no,
+            "action": act.upper(),
+            "result": result,
+            "percepts": percept.to_dict(),
+            "score": self.score
+        })
+
+        return percept 
 
     #Them
     def print_log(self):
@@ -341,8 +357,6 @@ class Agent:
         for step, act, result, score in self.step_log:
             print(f"{step:<5} | {act:<12} | {result:<50} | {score}")
 
-
-
     def print_history(self):
         print("\n=== MOVE HISTORY ===")
         print("{:<5} | {:<10} | {}".format("Step", "Action", "Percepts"))
@@ -350,40 +364,6 @@ class Agent:
         for step, action, percepts in self.history:
             percept_str = ", ".join([f"{k}:{v}" for k, v in percepts.items()])
             print(f"{step:<5} | {action:<10} | {percept_str}")
-
-# ======= Chạy thử chương trình =======
-# def main():
-#     world = WumpusWorld(N=4, K=2, p=0.2)
-#     agent = Agent()
-
-#     print("\n[1] Hiển thị bản đồ thật (Full Info):")
-#     world.print_true_map()
-
-#     print("\n[2] Bắt đầu thử di chuyển:")
-#     steps = ["right", "up", "left", "up", "right", "right"]  # Thử 6 bước
-
-#     ##steps = ["right", "up", "left", "up"]  # Chuỗi hành động thử
-#     initial_pos = agent.get_position()
-#     print("Initial percepts: ", world.get_percepts(*initial_pos))
-#     print("============================")
-
-#     # for step in steps:
-#     #     print(f"\n>> Agent action: MOVE {step.upper()}")
-#     for i, step in enumerate(steps):
-#         print(f"\n>> Step {i+1}: MOVE {step.upper()}")
-#         ##agent.move(step, world)
-#         agent.move(step, world, i+1)
-
-#         pos = agent.get_position()
-#         percepts = world.get_percepts(*pos)
-#         print(f"Agent at {pos}")
-#         print("Percepts:", percepts)
-
-#         world.print_map(pos)
-#         print("============================")
-
-#     print("\n[3] Lịch sử di chuyển và percepts:")
-#     agent.print_history()
 
 def main():
     world = WumpusWorld(N=8, K=2, p=0.2)
@@ -410,8 +390,11 @@ def main():
 
     for i, act in enumerate(actions):
         print(f"\n>> STEP {i+1}: {act.upper()}")
-        agent.action(act, world, i+1)
+        percept = agent.action(act, world, i+1)
+        #agent.action(act, world, i+1)
         # world.print_agent_map(agent)
+        print("\n[***] Print percept for testing:") # muốn in dòng này thì phải tắt display_step ở dòng dưới
+        print(percept) # muốn in dòng này thì phải tắt display_step ở dòng dưới
         display_step(agent, world)
         if not agent.is_alive:
             break
