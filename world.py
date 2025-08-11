@@ -139,7 +139,7 @@ class WumpusWorld:
                 for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
                     nx, ny = x + dx, y + dy
                     if 0 <= nx < N and 0 <= ny < N:
-                        kb.append(((x, y), (nx, ny)))
+                        kb.append(("Adjacent", (x, y), (nx, ny)))
                     else:
                         # Dù đây đã có trong wall, vẫn thêm lại để rõ ràng cho inference
                         wall_pos = (nx, ny)

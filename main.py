@@ -1,6 +1,7 @@
 from agent import Agent
 from world import WumpusWorld
 from visual import display_step
+from inference import InferenceEngine
 
 def main():
     world = WumpusWorld(N=3, K=0, p=0.2)
@@ -15,6 +16,7 @@ def main():
     initial_kb = world.generate_initial_KB(agent)
     for fact in initial_kb:
         print(fact)
+    engine = InferenceEngine()
     # actions = [
     #     "move forward", "turn left", "move forward",
     #     "grab", "turn right", "move forward",
