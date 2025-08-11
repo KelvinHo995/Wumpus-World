@@ -75,7 +75,7 @@ class InferenceEngine:
 
         return self.match_conditions(sorted_conditions, facts)
 
-    def forward_chaining(self, rules, facts):
+    def forward_chaining(self, rules, facts, deleted):
         inferred = set(facts)
 
         while True:
@@ -102,14 +102,15 @@ class InferenceEngine:
                         elif new_literal in new_facts:
                             new_facts.discard(new_literal)
                             changed = True
-                    elif new_literal not in inferred and new_literal not in new_facts:
+                    elif new_literal not in inferred and new_literal not in new_facts and new_literal not in deleted:
                         new_facts.add(new_literal)
                         changed = True
 
             if not changed:
                 break
-
+            
             inferred -= to_remove
+            deleted |= to_remove
             inferred |= new_facts
 
         return inferred

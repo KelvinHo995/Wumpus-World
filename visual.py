@@ -8,7 +8,7 @@ def clear_console():
         os.system('clear')
 
 def display_step(agent, world):
-    clear_console()
+    # clear_console()
 
     # === Hiển thị bản đồ
     pos = agent.get_position()

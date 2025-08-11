@@ -21,11 +21,11 @@ class WumpusWorld:
         # Không đặt pit/gold để dễ test
         # Đặt 1 Wumpus cố định tại (3,0) – hàng ngang với Agent
         self.grid[0][1].has_wumpus = True
-        self.grid[1][0].has_pit = True
-        #self.grid[3][3].has_wumpus = True  # nằm khác hướng → không bị bắn
+        # self.grid[1][0].has_pit = True
+        self.grid[3][3].has_wumpus = True  # nằm khác hướng → không bị bắn
 
         # (Tùy chọn) Đặt Gold để test hành vi khác
-        # self.grid[0][2].has_gold = True
+        self.grid[0][2].has_gold = True
 
     def place_elements(self):
         # Wumpus
@@ -130,6 +130,8 @@ class WumpusWorld:
         for key in ["breeze", "stench", "glitter"]:
             if percepts[key]:
                 kb.append((key.capitalize(), (x, y)))
+            else:
+                kb.append(("Not" + key.capitalize(), (x, y)))
 
         N = self.N
 
@@ -139,7 +141,7 @@ class WumpusWorld:
                 for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
                     nx, ny = x + dx, y + dy
                     if 0 <= nx < N and 0 <= ny < N:
-                        kb.append(("Adjacent", (x, y), (nx, ny)))
+                        kb.append(("Adjacent", (x, y, nx, ny)))
                     else:
                         # Dù đây đã có trong wall, vẫn thêm lại để rõ ràng cho inference
                         wall_pos = (nx, ny)
