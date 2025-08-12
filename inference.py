@@ -132,7 +132,8 @@ class InferenceEngine:
     def get_frontier_tiles(self, visited_tiles):
         frontier = set()
         for tile in visited_tiles:
-            for neighbor in self.adjacency_cache[tile]:
+             for dx, dy in [(0,1), (1,0), (0,-1), (-1,0)]:
+                neighbor = (tile[0] + dx, tile[1] + dy)
                 if neighbor not in visited_tiles:
                     frontier.add(neighbor)
         return frontier

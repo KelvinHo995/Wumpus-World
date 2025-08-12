@@ -25,13 +25,13 @@ class Agent:
     def plan(self):
         safe_tiles = InferenceEngine().get_safe_tiles(self.KB)
         visited_tiles = InferenceEngine().get_visited_tiles(self.KB)
-        start_state = State(self.get_position, self.get_facing, self.has_gold, self.remain_arrow)
+        start_state = State(self.get_position(), self.get_facing(), self.has_gold, self.remain_arrow)
         solver = SafeAStarSolver(safe_tiles, visited_tiles, self.map_size, self.n_wum, self.p_pit)
         path = solver.a_star(start_state)
         if path:
             return path
 
-        frontier_tiles = InferenceEngine.get_frontier_tiles(visited_tiles)
+        frontier_tiles = InferenceEngine().get_frontier_tiles(visited_tiles)
 
         solver = RiskyAStarSolver(safe_tiles, visited_tiles, self.map_size, self.n_wum, self.p_pit, frontier_tiles)
         path = solver.a_star(start_state)

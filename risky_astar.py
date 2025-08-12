@@ -12,7 +12,7 @@ class RiskyAStarSolver(BaseAStarSolver):
         return generate_successors(state, self.map_size, risky_mode=True)
     
     def is_valid_position(self, pos):
-        return self.world.in_bounds(pos)
+        return 0 <= pos[0] < self.map_size and 0 <= pos[1] < self.map_size
     
     def is_goal(self, state):
         if state.has_gold:

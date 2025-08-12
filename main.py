@@ -59,7 +59,8 @@ def main():
         agent.infer(rules)
         plan = agent.plan()
 
-        for action in plan:
+        for action, _ in plan:
+            print(action)
             percept = agent.action(action, world, step)
             step += 1
 
