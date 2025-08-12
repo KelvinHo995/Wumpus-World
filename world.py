@@ -118,10 +118,10 @@ class WumpusWorld:
             print(f"[INFO] Result: {result_text}")
             print(f"[INFO] Current score: {current_score}")
 
-    def generate_initial_KB(self, agent):
+    def generate_initial_KB(self):
         kb = []
 
-        x, y = agent.get_position()
+        x, y = (0, 0)
         kb.append(("Visited", (x, y)))
         kb.append(("Safe", (x, y)))
 
@@ -146,7 +146,7 @@ class WumpusWorld:
                         # Dù đây đã có trong wall, vẫn thêm lại để rõ ràng cho inference
                         wall_pos = (nx, ny)
                         kb.append(("Wall", wall_pos))
-                        # kb.append(("NoPit", wall_pos))
-                        # kb.append(("NoWumpus", wall_pos))
+                        kb.append(("NoPit", wall_pos))
+                        kb.append(("NoWumpus", wall_pos))
 
         return kb

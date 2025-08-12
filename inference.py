@@ -77,6 +77,7 @@ class InferenceEngine:
 
     def forward_chaining(self, rules, facts, deleted):
         inferred = set(facts)
+        seen = set(facts)
 
         while True:
             new_facts = set()
@@ -102,19 +103,40 @@ class InferenceEngine:
                         elif new_literal in new_facts:
                             new_facts.discard(new_literal)
                             changed = True
-                    elif new_literal not in inferred and new_literal not in new_facts and new_literal not in deleted:
+                    elif new_literal not in inferred \
+                        and new_literal not in new_facts \
+                        and new_literal not in deleted \
+                        and new_literal not in to_remove \
+                        and new_literal not in seen:
                         new_facts.add(new_literal)
+                        print('add', new_literal)
                         changed = True
 
             if not changed:
+                print("huhuuhuhhuhuhhuh")
                 break
             
             inferred -= to_remove
             deleted |= to_remove
             inferred |= new_facts
+            seen |= new_facts
 
         return inferred
 
+    def get_safe_tiles(self, inferred):
+        return set(tuple(map(int, fact[1])) for fact in inferred if fact[0] == "Safe")
+
+    def get_visited_tiles(self, inferred):
+        return set(tuple(map(int, fact[1])) for fact in inferred if fact[0] == "Visited")
+
+    def get_frontier_tiles(self, visited_tiles):
+        frontier = set()
+        for tile in visited_tiles:
+            for neighbor in self.adjacency_cache[tile]:
+                if neighbor not in visited_tiles:
+                    frontier.add(neighbor)
+        return frontier
+    
 if __name__ == "__main__":
     facts = [
         ("PossiblePit", ("1", "1")),
