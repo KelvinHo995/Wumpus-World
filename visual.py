@@ -63,7 +63,7 @@ def display_step(agent, world):
     #for step, action, result, score in agent.step_log:
     #    short_result1 = result.split(" | ")[0]  # Ẩn Percepts để bảng gọn hơn
 
-    for entry in agent.step_log:
+    for entry in reversed(agent.step_log):
         step = entry["step"]
         action = entry["action"]
         result = entry["result"]

@@ -28,6 +28,26 @@ class InferenceEngine:
 
         return parsed_rules
 
+    def make_index(self, KB):
+        """Convert a flat KB set into an indexed KB dict."""
+        index = defaultdict(set)
+        for pred, arg in KB:
+            index[pred].add(arg)
+        return index
+    
+    def add_fact(self, index, fact):
+        """Add a single fact to the indexed KB."""
+        pred, arg = fact
+        index[pred].add(arg)
+
+    def remove_fact(self, index, fact):
+        """Remove a single fact from the indexed KB."""
+        pred, arg = fact
+        if arg in index[pred]:
+            index[pred].remove(arg)
+            if not index[pred]:  # clean up empty entries
+                del index[pred]
+
     def unify(self, expression, fact, substitution={}):
         if expression[0] != fact[0]:
             return
@@ -56,7 +76,12 @@ class InferenceEngine:
         current_condition = conditions[index]
         matches = []
 
-        for fact in facts:
+        pred = current_condition[0]
+        if pred not in facts:
+            return []
+        
+        for args in facts[pred]:
+            fact = (pred, args)
             next_subs = self.unify(current_condition, fact, current_subs)
             if next_subs:
                 matches += self.match_conditions(conditions, facts, index + 1, next_subs)
@@ -68,21 +93,21 @@ class InferenceEngine:
         Returns all of the substitutions available for the conditions
         """
         num_match = defaultdict(int)
-        for fact in facts:
-            num_match[fact[0]] += 1
+        for pred, args_set in facts.items():
+            num_match[pred] = len(args_set)
         
         sorted_conditions = sorted(conditions, key=lambda condition: num_match[condition[0]])
 
         return self.match_conditions(sorted_conditions, facts)
 
-    def forward_chaining(self, rules, facts, deleted):
-        inferred = set(facts)
-        seen = set(facts)
+    def forward_chaining(self, rules, inferred, deleted):
+        seen = {(p, args) for p, s in inferred.items() for args in s}
+        delta = {p: set(s) for p, s in inferred.items()}
+        delta_preds = set(delta.keys())
 
-        while True:
+        while delta:
             new_facts = set()
             to_remove = set()
-            changed = False
 
             for rule in rules:
                 premise = rule["if"]
@@ -91,52 +116,64 @@ class InferenceEngine:
                 else:
                     consequence = rule["remove"]
 
+                if not any(lit[0] in delta_preds for lit in premise):
+                    continue
+
                 matches = self.match(premise, inferred)
 
                 for substitution in matches:
                     new_literal = self.substitute(consequence, substitution)
-        
+
                     if "remove" in rule:
                         if new_literal in inferred:
                             to_remove.add(new_literal)
-                            changed = True
                         elif new_literal in new_facts:
                             new_facts.discard(new_literal)
-                            changed = True
-                    elif new_literal not in inferred \
-                        and new_literal not in new_facts \
-                        and new_literal not in deleted \
-                        and new_literal not in to_remove \
-                        and new_literal not in seen:
-                        new_facts.add(new_literal)
-                        changed = True
+                    else:
+                        if (
+                            new_literal not in seen
+                            and new_literal not in new_facts
+                            and new_literal not in deleted
+                            and new_literal not in to_remove
+                        ):
+                            new_facts.add(new_literal)
 
-            if not changed:
+            if not new_facts and not to_remove:
                 break
             
-            inferred -= to_remove
+            for fact in to_remove:
+                self.remove_fact(inferred, fact)
             deleted |= to_remove
-            inferred |= new_facts
+
+            for fact in new_facts:
+                self.add_fact(inferred, fact)
             seen |= new_facts
+
+            delta = {}
+            for pred, args in new_facts:
+                delta.setdefault(pred, set()).add(args)
+            delta_preds = set(delta.keys())
 
         return inferred
 
     def get_stench_tile(self, inferred):
-        return set(tuple(map(int, fact[1])) for fact in inferred if fact[0] == "Stench")
+        return inferred.get("Stench", set())
 
     def get_safe_tiles(self, inferred):
-        walls = set(tuple(map(int, fact[1])) for fact in inferred if fact[0] == "Wall")
-        return set(tuple(map(int, fact[1])) for fact in inferred if fact[0] == "Safe") - walls
+        walls = inferred.get("Wall", set())
+        safe = inferred.get("Safe", set())
+        return safe - walls
 
     def get_visited_tiles(self, inferred):
-        return set(tuple(map(int, fact[1])) for fact in inferred if fact[0] == "Visited")
+        return inferred.get("Visited", set())
 
     def get_frontier_tiles(self, visited_tiles, inferred):
+        walls = inferred.get("Wall", set())
         frontier = set()
         for tile in visited_tiles:
-             for dx, dy in [(0,1), (1,0), (0,-1), (-1,0)]:
+            for dx, dy in [(0,1), (1,0), (0,-1), (-1,0)]:
                 neighbor = (tile[0] + dx, tile[1] + dy)
-                if neighbor not in visited_tiles and ("Wall", neighbor) not in inferred:
+                if neighbor not in visited_tiles and neighbor not in walls:
                     frontier.add(neighbor)
         return frontier
     

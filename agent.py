@@ -5,6 +5,8 @@ from inference import InferenceEngine
 from risky_astar import RiskyAStarSolver
 from safe_astar import SafeAStarSolver
 from state import State
+from collections import defaultdict
+
 # ======= Agent =======
 class Agent:
     def __init__(self, KB, map_size, n_wum, p_pit):
@@ -16,8 +18,8 @@ class Agent:
         self.remain_arrow = True
         self.score = 0
         self.step_log = []
-        self.KB = set(KB)
-        self.deleted = set()
+        self.KB = InferenceEngine().make_index(KB)
+        self.deleted = defaultdict(set)
         self.map_size = map_size
         self.n_wum = n_wum
         self.p_pit = p_pit
@@ -46,10 +48,10 @@ class Agent:
         return InferenceEngine().parse_rules(path)
     
     def infer(self, rules):
-        self.KB = InferenceEngine().forward_chaining(rules, self.KB, self.deleted)
+        InferenceEngine().forward_chaining(rules, self.KB, self.deleted)
     
     def add_KB(self, new_fact):
-        self.KB.add(new_fact)
+        InferenceEngine().add_fact(self.KB, new_fact)
 
     def process_percepts(self, percept):
         pos = self.get_position()

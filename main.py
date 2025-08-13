@@ -40,19 +40,12 @@ def main():
 
     step = 0
     while agent.is_alive:
-
         agent.infer(rules)
         plan = agent.plan()
-
-        # if plan is None or len(plan) == 0:
-        #     print("The agent infers that it's unable to continue")
-        #     break
-
-        # print("gold: ", agent.has_gold)
-        # for action, _ in plan:
-        #     print(action)
         
-        # input("Enter pls\n")
+        if plan is None or len(plan) == 0:
+            print("Oh no")
+            break
         
         for action, _ in plan:
             if not agent.is_alive:

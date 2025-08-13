@@ -50,22 +50,6 @@
   },
   {
     "if": [
-      ["Wall", ["x", "y"]],
-      ["Wall", ["x", "z"]],
-      ["Adjacent", ["x", "y", "x", "z"]]
-    ],
-    "then": ["WallRow", ["x"]]
-  },
-  {
-    "if": [
-      ["Wall", ["x", "y"]],
-      ["Wall", ["z", "y"]],
-      ["Adjacent", ["x", "y", "z", "y"]]
-    ],
-    "then": ["WallColumn", ["y"]]
-  },
-  {
-    "if": [
       ["Breeze", ["x", "y"]],
       ["NotBreeze", ["a1", "b1"]],
       ["NotBreeze", ["a2", "b2"]],
