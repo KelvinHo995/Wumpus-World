@@ -38,9 +38,6 @@ class Agent:
         frontier_tiles = InferenceEngine().get_frontier_tiles(visited_tiles, self.KB)
 
         solver = RiskyAStarSolver(safe_tiles, visited_tiles, stench_tiles, self.map_size, self.n_wum, self.p_pit, frontier_tiles)
-        print("visited\n", visited_tiles)
-        print("safe\n", safe_tiles)
-        print("frontier\n", frontier_tiles)
         path = solver.a_star(start_state)
         return path
     
@@ -204,7 +201,6 @@ class Agent:
                     result = "Climbed out with Gold!"
                 else:
                     result = "Climbed out without gold."
-                self.is_alive = False
             else:
                 result = "Can only climb out at (0,0)"
 

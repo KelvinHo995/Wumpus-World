@@ -125,7 +125,7 @@ class InferenceEngine:
                     new_literal = self.substitute(consequence, substitution)
 
                     if "remove" in rule:
-                        if new_literal in inferred:
+                        if new_literal[0] in inferred and new_literal[1] in inferred[new_literal[0]]:
                             to_remove.add(new_literal)
                         elif new_literal in new_facts:
                             new_facts.discard(new_literal)
