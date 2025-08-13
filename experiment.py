@@ -25,12 +25,15 @@ def run_smart_agent(world, agent, display=False):
     rules = agent.parse_rules("rules.json")
 
     step = 0
+    diff = 1
     while agent.is_alive and not (agent.get_position() == (0, 0) and agent.has_gold):
-
-        agent.infer(rules)
+        if diff > 0:
+            agent.infer(rules)
         plan = agent.plan()
         if not plan or len(plan) == 0:
             break
+        
+        pre_KB_len = sum(len(args_set) for pred, args_set in agent.KB.items())
 
         for action, _ in plan:
             if not agent.is_alive:
@@ -40,7 +43,9 @@ def run_smart_agent(world, agent, display=False):
             if display:
                 display_step(agent, world)
 
-            if not agent.process_percepts(percept):
+            agent_continue = agent.process_percepts(percept)
+
+            if not agent_continue:
                 agent.action("grab", world, step)
                 step += 1
                 if display:
@@ -53,6 +58,9 @@ def run_smart_agent(world, agent, display=False):
                 if display:
                     display_step(agent, world)
                 break
+
+        post_KB_len = sum(len(args_set) for pred, args_set in agent.KB.items())
+        diff = post_KB_len - pre_KB_len
 
 def run_experiment(map_size=8, n_wumpus=2, p_pit=0.2, num_trials=100, max_steps=50, verbose=False):
     def build_world():
@@ -137,3 +145,29 @@ def summarize_results(results):
     print(f"Score Std Deviation  : {std_score:.2f}")
     print(f"Average Steps        : {avg_steps:.2f}")
     print(f"Steps Std Deviation  : {std_steps:.2f}")
+
+def main():
+    map_size = int(input("Enter map size: "))
+    n_wum = int(input("Enter number of Wumpuses: "))
+    p_pit = float(input("Enter pit density: "))
+    num_trials = 2
+    run_experiment(map_size, n_wum, p_pit, num_trials, max_steps=50, verbose=False)
+
+    # #print("\n[1] Hiển thị bản đồ thật (Full Info):")
+    
+    # #print("\n[2] Start Simulation:")
+
+    # #print("\n[***] Initial Knowledge Base from (0, 0):")
+
+    # actions = [
+    #     # "shoot",      # Bắn mũi tên từ (0,0) → hy vọng trúng (3,0)
+    #     "turn left",
+    #     "move forward",
+    #     "move forward",
+    #     "move forward",
+    #     "turn right",
+    #     "move forward"
+    # ]
+
+if __name__ == "__main__":
+    main()
