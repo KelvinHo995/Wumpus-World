@@ -25,15 +25,20 @@ class Agent:
     def plan(self):
         safe_tiles = InferenceEngine().get_safe_tiles(self.KB)
         visited_tiles = InferenceEngine().get_visited_tiles(self.KB)
+        stench_tiles = InferenceEngine().get_stench_tile(self.KB)
         start_state = State(self.get_position(), self.get_facing(), self.has_gold, self.remain_arrow)
-        solver = SafeAStarSolver(safe_tiles, visited_tiles, self.map_size, self.n_wum, self.p_pit)
+
+        solver = SafeAStarSolver(safe_tiles, visited_tiles, stench_tiles, self.map_size, self.n_wum, self.p_pit)
         path = solver.a_star(start_state)
         if path:
             return path
 
-        frontier_tiles = InferenceEngine().get_frontier_tiles(visited_tiles)
+        frontier_tiles = InferenceEngine().get_frontier_tiles(visited_tiles, self.KB)
 
-        solver = RiskyAStarSolver(safe_tiles, visited_tiles, self.map_size, self.n_wum, self.p_pit, frontier_tiles)
+        solver = RiskyAStarSolver(safe_tiles, visited_tiles, stench_tiles, self.map_size, self.n_wum, self.p_pit, frontier_tiles)
+        print("visited\n", visited_tiles)
+        print("safe\n", safe_tiles)
+        print("frontier\n", frontier_tiles)
         path = solver.a_star(start_state)
         return path
     
@@ -60,13 +65,14 @@ class Agent:
 
         self.add_KB(("NoPit", pos))
         self.add_KB(("NoWumpus", pos))
+        self.add_KB(("Visited", pos))
         
         if percept.scream:
-            dx, dy = direction_to_delta(self.get_facing)
+            dx, dy = direction_to_delta(self.get_facing())
             front_pos = (pos[0] + dx, pos[1] + dy)
-            dx, dy = direction_to_delta(self.get_left)
+            dx, dy = direction_to_delta(self.get_left())
             left_pos = (pos[0] + dx, pos[1] + dy)
-            dx, dy = direction_to_delta(self.get_right)
+            dx, dy = direction_to_delta(self.get_right())
             right_pos = (pos[0] + dx, pos[1] + dy)
 
             if percept.stench:

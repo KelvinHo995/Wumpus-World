@@ -14,15 +14,15 @@ class WumpusWorld:
         self.K = K
         self.p = p
         self.grid = [[Cell() for _ in range(N)] for _ in range(N)]
-        self.set_fixed_map() # Có thể dùng dòng này hoặc dòng dưới...
-        #self.place_elements()
+        # self.set_fixed_map() # Có thể dùng dòng này hoặc dòng dưới...
+        self.place_elements()
 
     def set_fixed_map(self):
         # Không đặt pit/gold để dễ test
         # Đặt 1 Wumpus cố định tại (3,0) – hàng ngang với Agent
-        self.grid[0][1].has_wumpus = True
+        self.grid[1][0].has_wumpus = True
         # self.grid[1][0].has_pit = True
-        self.grid[3][3].has_wumpus = True  # nằm khác hướng → không bị bắn
+        # self.grid[3][3].has_wumpus = True  # nằm khác hướng → không bị bắn
 
         # (Tùy chọn) Đặt Gold để test hành vi khác
         self.grid[0][2].has_gold = True

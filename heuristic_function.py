@@ -10,10 +10,11 @@ def advanced_heuristic(state, map_size, goals, safe_tiles, p_pit, n_wum):
     h2 = 1000 if not state.has_gold else 0
     
     h3 = 0
-    for dx, dy in [(0,1), (1,0), (0,-1), (-1,0)]:
-        ni, nj = state.pos[0] + dx, state.pos[1] + dy
-        if 0 <= ni < map_size and 0 <= nj < map_size and (ni, nj) in safe_tiles:
-            h3 += 1
+    if not state.has_gold:
+        for dx, dy in [(0,1), (1,0), (0,-1), (-1,0)]:
+            ni, nj = state.pos[0] + dx, state.pos[1] + dy
+            if 0 <= ni < map_size and 0 <= nj < map_size and (ni, nj) in safe_tiles:
+                h3 += 1
 
     h4 = 0
     if state.pos not in safe_tiles:

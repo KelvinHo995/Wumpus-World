@@ -3,7 +3,7 @@ from state import State
 from directions import DIRECTIONS
 
 class BaseAStarSolver:
-    def __init__(self, safe_tiles, visited_tiles, map_size, n_wum, p_pit):
+    def __init__(self, safe_tiles, visited_tiles, stench_tiles, map_size, n_wum, p_pit):
         self.start_pos = (0, 0)
         self.start_dir = "E"
         self.safe_tiles = safe_tiles
@@ -11,6 +11,7 @@ class BaseAStarSolver:
         self.map_size = map_size
         self.n_wum = n_wum
         self.p_pit = p_pit
+        self.stench_tiles = stench_tiles
 
     def init_state(self):
         return State(
@@ -42,11 +43,16 @@ class BaseAStarSolver:
         cost_so_far = {start_state: 0}
         
         while frontier:
-            _, current = heapq.heappop(frontier)
+            priority, current = heapq.heappop(frontier)
             
+            # print(current.pos, current.direction, priority, current.cost)
+
             if self.is_goal(current):
                 return self.reconstruct_path(came_from, current)
-            
+                
+            if current in came_from and came_from[current][1] == "shoot":
+                return self.reconstruct_path(came_from, current)
+
             for action, neighbor in self.generate_successors(current):
                 if not self.is_valid_position(neighbor.pos):
                     continue
@@ -57,6 +63,7 @@ class BaseAStarSolver:
                     priority = new_cost + self.heuristic(neighbor)
                     heapq.heappush(frontier, (priority, neighbor))
                     came_from[neighbor] = (current, action, neighbor.pos)
+                    # print(action, neighbor.pos, neighbor.direction, priority, neighbor.cost, end=';\n')
                     
         return None
     

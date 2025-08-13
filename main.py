@@ -1,7 +1,7 @@
 from agent import Agent
 from world import WumpusWorld
 from visual import display_step
-
+import os
 def main():
     map_size = 4
     n_wum = 1
@@ -10,7 +10,6 @@ def main():
     
 
     print("\n[1] Hiển thị bản đồ thật (Full Info):")
-    world.print_true_map()
 
     print("\n[2] Start Simulation:")
     # ✅ Generate Initial KB at (0, 0)
@@ -39,34 +38,38 @@ def main():
     agent = Agent(initial_kb, map_size, n_wum, p_pit)
     rules = agent.parse_rules('rules.json')
 
-    # for i, act in enumerate(actions):
-    #     # initial_kb = engine.forward_chaining(rules, initial_kb, deleted)
-    #     initial_kb = agent.infer(rules)
-    #     print(f"\n>> STEP {i+1}: {act.upper()}")
-    #     percept = agent.action(act, world, i+1)
-    #     agent.process_percepts(percept)
-    #     #agent.action(act, world, i+1)
-    #     # world.print_agent_map(agent)
-    #     # print("\n[***] Print percept for testing:") # muốn in dòng này thì phải tắt display_step ở dòng dưới
-    #     # print(percept) # muốn in dòng này thì phải tắt display_step ở dòng dưới
-    #     display_step(agent, world)
-
-    #     if not agent.is_alive:
-    #         break
-    
     step = 0
     while agent.is_alive:
+
         agent.infer(rules)
         plan = agent.plan()
 
+        # if plan is None or len(plan) == 0:
+        #     print("The agent infers that it's unable to continue")
+        #     break
+
+        # print("gold: ", agent.has_gold)
+        # for action, _ in plan:
+        #     print(action)
+        
+        # input("Enter pls\n")
+        
         for action, _ in plan:
-            print(action)
+            if not agent.is_alive:
+                break
             percept = agent.action(action, world, step)
             step += 1
 
             display_step(agent, world)
+
             if agent.process_percepts(percept) == False:
                 agent.action("grab", world, step)
+                step += 1
+                display_step(agent, world)
+                break
+                
+            if agent.get_position() == (0, 0) and agent.has_gold:
+                agent.action("climb out", world, step)
                 step += 1
                 display_step(agent, world)
                 break

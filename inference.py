@@ -109,11 +109,9 @@ class InferenceEngine:
                         and new_literal not in to_remove \
                         and new_literal not in seen:
                         new_facts.add(new_literal)
-                        print('add', new_literal)
                         changed = True
 
             if not changed:
-                print("huhuuhuhhuhuhhuh")
                 break
             
             inferred -= to_remove
@@ -123,18 +121,22 @@ class InferenceEngine:
 
         return inferred
 
+    def get_stench_tile(self, inferred):
+        return set(tuple(map(int, fact[1])) for fact in inferred if fact[0] == "Stench")
+
     def get_safe_tiles(self, inferred):
-        return set(tuple(map(int, fact[1])) for fact in inferred if fact[0] == "Safe")
+        walls = set(tuple(map(int, fact[1])) for fact in inferred if fact[0] == "Wall")
+        return set(tuple(map(int, fact[1])) for fact in inferred if fact[0] == "Safe") - walls
 
     def get_visited_tiles(self, inferred):
         return set(tuple(map(int, fact[1])) for fact in inferred if fact[0] == "Visited")
 
-    def get_frontier_tiles(self, visited_tiles):
+    def get_frontier_tiles(self, visited_tiles, inferred):
         frontier = set()
         for tile in visited_tiles:
              for dx, dy in [(0,1), (1,0), (0,-1), (-1,0)]:
                 neighbor = (tile[0] + dx, tile[1] + dy)
-                if neighbor not in visited_tiles:
+                if neighbor not in visited_tiles and ("Wall", neighbor) not in inferred:
                     frontier.add(neighbor)
         return frontier
     

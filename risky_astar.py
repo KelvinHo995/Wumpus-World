@@ -3,13 +3,13 @@ from successor import generate_successors
 from heuristic_function import advanced_heuristic
 
 class RiskyAStarSolver(BaseAStarSolver):
-    def __init__(self, safe_tiles, visited_tiles, map_size, n_wum, p_pit, frontier_tiles):
-        super().__init__(safe_tiles, visited_tiles, map_size, n_wum, p_pit)
+    def __init__(self, safe_tiles, visited_tiles, stench_tiles, map_size, n_wum, p_pit, frontier_tiles):
+        super().__init__(safe_tiles, visited_tiles, stench_tiles, map_size, n_wum, p_pit)
         self.frontier_tiles = frontier_tiles
         self.visited_tiles = visited_tiles
         
     def generate_successors(self, state):
-        return generate_successors(state, self.map_size, risky_mode=True)
+        return generate_successors(state, self.map_size, self.stench_tiles, risky_mode=True)
     
     def is_valid_position(self, pos):
         return 0 <= pos[0] < self.map_size and 0 <= pos[1] < self.map_size
@@ -28,12 +28,6 @@ class RiskyAStarSolver(BaseAStarSolver):
         return advanced_heuristic(state, self.map_size, goals, self.safe_tiles, self.p_pit, self.n_wum)
     
     def a_star(self, start_state):
-        path = super().a_star(start_state)
-        if not path:
+        if self.frontier_tiles == set():
             return None
-            
-        for i, (action, _) in enumerate(path):
-            if action == "SHOOT":
-                return path[:i+1]
-                
-        return path
+        return super().a_star(start_state)

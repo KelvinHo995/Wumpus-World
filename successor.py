@@ -7,7 +7,7 @@ def rotate_left(dir):
 def rotate_right(dir):
     return DIRECTIONS[(DIRECTIONS.index(dir) + 1) % 4]
 
-def generate_successors(state, map_size, risky_mode=False):
+def generate_successors(state, map_size, stench_tiles, risky_mode=False):
     successors = []
     dx, dy = direction_to_delta(state.direction)
     new_pos = (state.pos[0] + dx, state.pos[1] + dy)
@@ -38,7 +38,7 @@ def generate_successors(state, map_size, risky_mode=False):
         cost=state.cost + 1
     )))
     
-    if risky_mode and state.has_arrow:
+    if risky_mode and state.has_arrow and state.pos in stench_tiles:
         successors.append(("shoot", State(
             pos=state.pos,
             direction=state.direction,
