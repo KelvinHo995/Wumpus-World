@@ -3,9 +3,9 @@ from world import WumpusWorld
 from visual import display_step
 import os
 def main():
-    map_size = 4
-    n_wum = 1
-    p_pit = 0.2
+    map_size = int(input("Enter map size: "))
+    n_wum = int(input("Enter number of Wumpuses: "))
+    p_pit = float(input("Enter pit density: "))
     world = WumpusWorld(N=map_size, K=n_wum, p=p_pit)
     
 
