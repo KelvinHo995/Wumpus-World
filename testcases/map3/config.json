@@ -1,0 +1,6 @@
+{
+  "map_size": 9,
+  "num_wumpus": 3,
+  "pit_probability": 0.15,
+  "random_seed": 789
+}

@@ -23,6 +23,8 @@ class Agent:
         self.map_size = map_size
         self.n_wum = n_wum
         self.p_pit = p_pit
+        self.visited = [[False for _ in range(map_size)] for _ in range(map_size)]
+        self.visited[0][0] = True
 
     def plan(self):
         safe_tiles = InferenceEngine().get_safe_tiles(self.KB)
@@ -140,6 +142,7 @@ class Agent:
             if 0 <= new_x < world.N and 0 <= new_y < world.N:
                 self.x = new_x
                 self.y = new_y
+                self.visited[self.y][self.x] = True
                 self.score -= 1
                 current = world.grid[self.y][self.x]
                 if current.has_pit:

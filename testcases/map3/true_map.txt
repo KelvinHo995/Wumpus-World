@@ -1,0 +1,11 @@
+
+=== TRUE MAP (Full Info - For Debugging Only) ===
+.  .  .  .  .  .  W  .  P  
+.  .  P  .  .  .  .  .  .  
+.  .  P  .  .  P  .  P  .  
+P  .  .  P  .  .  .  .  .  
+.  .  P  .  .  .  .  .  .  
+.  .  .  .  .  .  P  .  .  
+.  .  .  .  .  .  .  W  .  
+.  .  .  .  .  .  G  .  .  
+.  .  .  .  .  .  .  W  .  

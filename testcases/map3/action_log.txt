@@ -1,0 +1,122 @@
+Step 0: MOVE FORWARD
+Moved to (1, 0)
+Score: -1
+
+Step 1: MOVE FORWARD
+Moved to (2, 0)
+Score: -2
+
+Step 2: MOVE FORWARD
+Moved to (3, 0)
+Score: -3
+
+Step 3: MOVE FORWARD
+Moved to (4, 0)
+Score: -4
+
+Step 4: MOVE FORWARD
+Moved to (5, 0)
+Score: -5
+
+Step 5: MOVE FORWARD
+Moved to (6, 0)
+Score: -6
+
+Step 6: TURN LEFT
+Turned left. Now facing N
+Score: -7
+
+Step 7: TURN LEFT
+Turned left. Now facing W
+Score: -8
+
+Step 8: MOVE FORWARD
+Moved to (5, 0)
+Score: -9
+
+Step 9: TURN RIGHT
+Turned right. Now facing N
+Score: -10
+
+Step 10: MOVE FORWARD
+Moved to (5, 1)
+Score: -11
+
+Step 11: MOVE FORWARD
+Moved to (5, 2)
+Score: -12
+
+Step 12: MOVE FORWARD
+Moved to (5, 3)
+Score: -13
+
+Step 13: TURN LEFT
+Turned left. Now facing W
+Score: -14
+
+Step 14: TURN LEFT
+Turned left. Now facing S
+Score: -15
+
+Step 15: MOVE FORWARD
+Moved to (5, 2)
+Score: -16
+
+Step 16: TURN LEFT
+Turned left. Now facing E
+Score: -17
+
+Step 17: MOVE FORWARD
+Moved to (6, 2)
+Score: -18
+
+Step 18: TURN RIGHT
+Turned right. Now facing S
+Score: -19
+
+Step 19: MOVE FORWARD
+Moved to (6, 1)
+Score: -20
+
+Step 20: GRAB
+Grabbed the GOLD!
+Score: -10
+
+Step 21: MOVE FORWARD
+Moved to (6, 0)
+Score: -11
+
+Step 22: TURN RIGHT
+Turned right. Now facing W
+Score: -12
+
+Step 23: MOVE FORWARD
+Moved to (5, 0)
+Score: -13
+
+Step 24: MOVE FORWARD
+Moved to (4, 0)
+Score: -14
+
+Step 25: MOVE FORWARD
+Moved to (3, 0)
+Score: -15
+
+Step 26: MOVE FORWARD
+Moved to (2, 0)
+Score: -16
+
+Step 27: MOVE FORWARD
+Moved to (1, 0)
+Score: -17
+
+Step 28: MOVE FORWARD
+Moved to (0, 0)
+Score: -18
+
+Step 29: CLIMB OUT
+Climbed out with Gold!
+Score: 982
+
+Final Score: 982
+Status: Alive: True, Has Gold: True

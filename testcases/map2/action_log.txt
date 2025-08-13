@@ -1,0 +1,54 @@
+Step 0: MOVE FORWARD
+Moved to (1, 0)
+Score: -1
+
+Step 1: TURN LEFT
+Turned left. Now facing N
+Score: -2
+
+Step 2: TURN LEFT
+Turned left. Now facing W
+Score: -3
+
+Step 3: MOVE FORWARD
+Moved to (0, 0)
+Score: -4
+
+Step 4: TURN RIGHT
+Turned right. Now facing N
+Score: -5
+
+Step 5: MOVE FORWARD
+Moved to (0, 1)
+Score: -6
+
+Step 6: MOVE FORWARD
+Moved to (0, 2)
+Score: -7
+
+Step 7: TURN LEFT
+Turned left. Now facing W
+Score: -8
+
+Step 8: TURN LEFT
+Turned left. Now facing S
+Score: -9
+
+Step 9: MOVE FORWARD
+Moved to (0, 1)
+Score: -10
+
+Step 10: TURN LEFT
+Turned left. Now facing E
+Score: -11
+
+Step 11: MOVE FORWARD
+Moved to (1, 1)
+Score: -12
+
+Step 12: MOVE FORWARD
+Agent fell into a Pit!
+Score: -1013
+
+Final Score: -1013
+Status: Alive: False, Has Gold: False

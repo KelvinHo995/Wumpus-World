@@ -150,3 +150,39 @@ class WumpusWorld:
                         kb.append(("NoWumpus", wall_pos))
 
         return kb
+    
+    def get_true_map_string(self):
+        result = "\n=== TRUE MAP (Full Info - For Debugging Only) ===\n"
+        for y in reversed(range(self.N)):
+            row = ""
+            for x in range(self.N):
+                cell = self.grid[y][x]
+                items = []
+                if cell.has_wumpus:
+                    items.append("W")
+                elif cell.has_pit:
+                    items.append("P")
+                elif cell.has_gold:
+                    items.append("G")
+                else:
+                    items.append(".")
+                content = "".join(items).ljust(3)
+                row += f"{content}"
+            result += row + "\n"
+        return result
+    
+    def get_agent_map_string(self, agent):
+        result = "\n=== AGENT MAP (Visible State) ===\n"
+        pos = agent.get_position()
+        for y in reversed(range(self.N)):
+            row = ""
+            for x in range(self.N):
+                if (x, y) == pos:
+                    row += "A  "
+                elif agent.visited[y][x]:
+                    row += ".  "
+                else:
+                    row += "   "
+            result += row + "\n"
+        return result
+

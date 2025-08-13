@@ -1,0 +1,26 @@
+Step 0: MOVE FORWARD
+Moved to (1, 0)
+Score: -1
+
+Step 1: GRAB
+Grabbed the GOLD!
+Score: 9
+
+Step 2: TURN LEFT
+Turned left. Now facing N
+Score: 8
+
+Step 3: TURN LEFT
+Turned left. Now facing W
+Score: 7
+
+Step 4: MOVE FORWARD
+Moved to (0, 0)
+Score: 6
+
+Step 5: CLIMB OUT
+Climbed out with Gold!
+Score: 1006
+
+Final Score: 1006
+Status: Alive: True, Has Gold: True
